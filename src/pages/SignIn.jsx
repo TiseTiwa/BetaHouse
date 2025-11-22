@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import goog from "../../public/🦆 icon _google_.png";
 import sig from "../../public/Frame 1000002379.png";
@@ -7,44 +7,34 @@ import { signinUser } from "../services/authService";
 export default function SignIn() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    email: "",
+    email: localStorage.getItem("rememberEmail") || "",
     password: "",
   });
 
   const [errors, setErrors] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
-
-  // Load saved email if "remember me" was used
-  useEffect(() => {
-    const savedEmail = localStorage.getItem("rememberEmail");
-    if (savedEmail) {
-      setFormData((prev) => ({ ...prev, email: savedEmail }));
-      setRememberMe(true);
-    }
-  }, []);
+  const [rememberMe, setRememberMe] = useState(
+    Boolean(localStorage.getItem("rememberEmail"))
+  );
 
   const handleChange = (e) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
-    setErrors([]);
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+
+    // remove errors once user starts typing
+    if (errors.length > 0) setErrors([]);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setErrors([]);
     setLoading(true);
+    setErrors([]);
 
     try {
       const data = await signinUser(formData);
 
-      // Save login token + user
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("user", JSON.stringify(data.user));
+      // store token for authenticated routes
+      localStorage.setItem("authToken", data.token);
 
-      // Remember email if checked
       if (rememberMe) {
         localStorage.setItem("rememberEmail", formData.email);
       } else {
@@ -63,20 +53,14 @@ export default function SignIn() {
     <div className="flex flex-col lg:flex-row">
       <div className="min-h-screen bg-white text-black p-6 sm:p-10 lg:p-20 flex justify-center w-full lg:w-1/2">
         <div className="w-full max-w-lg">
-          <h1 className="text-2xl sm:text-3xl font-bold leading-tight">
-            Welcome Back to BetaHouse!
-          </h1>
+          <h1 className="text-3xl font-bold">Welcome Back to BetaHouse!</h1>
 
-          <p className="mt-3 text-black-300">
-            Let's get started by filling out the information below
-          </p>
+          <p className="mt-2">Let's get started by signing in</p>
 
           {errors.length > 0 && (
-            <div className="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-md">
+            <div className="mt-4 p-3 bg-red-100 text-red-700 rounded-md">
               {errors.map((error, idx) => (
-                <p key={idx} className="text-sm">
-                  {error}
-                </p>
+                <p key={idx}>{error}</p>
               ))}
             </div>
           )}
@@ -90,7 +74,7 @@ export default function SignIn() {
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="Enter your Email"
-                className="w-full px-4 py-3 border border-gray-200 rounded-md bg-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-md"
                 required
               />
             </div>
@@ -103,30 +87,31 @@ export default function SignIn() {
                 value={formData.password}
                 onChange={handleChange}
                 placeholder="Enter your password"
-                className="w-full px-4 py-3 border border-gray-200 rounded-md bg-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-md"
                 required
               />
             </div>
 
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between mt-2">
               <div className="flex items-center space-x-2">
                 <input
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  className="w-5 h-5 accent-green-500"
+                  className="w-5 h-5 accent-green-600"
                 />
-                <p className="text-gray-300 text-sm">Remember Me</p>
+                <p className="text-sm">Remember Me</p>
               </div>
-              <a href="#" className="text-[#EC5E5E] text-sm hover:underline">
-                Forgot Password
+
+              <a href="#" className="text-red-500 text-sm hover:underline">
+                Forgot Password?
               </a>
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 mt-2 text-white bg-green-600 rounded-full hover:bg-green-700 transition disabled:opacity-50"
+              className="w-full py-3 mt-2 text-white bg-green-600 rounded-full hover:bg-green-700 disabled:bg-gray-400"
             >
               {loading ? "Signing in..." : "Sign In"}
             </button>
@@ -139,15 +124,15 @@ export default function SignIn() {
 
             <button
               type="button"
-              className="w-full flex justify-center items-center gap-3 py-3 border border-gray-600 rounded-full hover:bg-gray-800 transition"
+              className="w-full flex justify-center items-center gap-3 py-3 border border-gray-600 rounded-full hover:bg-gray-100"
             >
-              <img src={goog} alt="Google" className="w-6 h-6" />
+              <img src={goog} className="w-5 h-5" />
               Continue with Google
             </button>
 
-            <p className="text-center mt-6 text-gray-300">
+            <p className="text-center mt-6">
               New User?{" "}
-              <Link to="/signup" className="text-green-500 hover:underline">
+              <Link to="/signup" className="text-green-600 hover:underline">
                 Sign up
               </Link>
             </p>
@@ -156,7 +141,7 @@ export default function SignIn() {
       </div>
 
       <div className="hidden lg:flex w-1/2 h-screen">
-        <img src={sig} alt="" className="w-full h-full object-cover" />
+        <img src={sig} className="w-full h-full object-cover" />
       </div>
     </div>
   );
