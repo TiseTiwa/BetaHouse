@@ -1,0 +1,45 @@
+@import "tailwindcss";
+#root {
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+/* Hero section with background image */
+.hero-bg {
+  background-image: url("/Frame\ 9325.png");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-color: #0a0a0a;
+}
+
+/* Tablet and above */
+@media (min-width: 768px) {
+  .hero-bg {
+    background-attachment: fixed;
+    background-size: cover;
+  }
+}
+
+/* Mobile screens */
+@media (max-width: 767px) {
+  .hero-bg {
+    background-attachment: scroll;
+    background-size: cover;
+    background-position: center top;
+  }
+}
+
+/* Extra small phones */
+@media (max-width: 480px) {
+  .hero-bg {
+    background-size: auto 100%;
+    background-position: center top;
+  }
+}
+
+/* Main page background */
+.homebg {
+  background-color: #ffffff;
+}
