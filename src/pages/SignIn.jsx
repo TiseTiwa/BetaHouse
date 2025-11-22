@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import goog from "../../public/🦆 icon _google_.png";
 import sig from "../../public/Frame 1000002379.png";
@@ -10,20 +10,26 @@ export default function SignIn() {
     email: "",
     password: "",
   });
+
   const [errors, setErrors] = useState([]);
   const [loading, setLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
 
+  // Load saved email if "remember me" was used
+  useEffect(() => {
+    const savedEmail = localStorage.getItem("rememberEmail");
+    if (savedEmail) {
+      setFormData((prev) => ({ ...prev, email: savedEmail }));
+      setRememberMe(true);
+    }
+  }, []);
+
   const handleChange = (e) => {
-    const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [e.target.name]: e.target.value,
     }));
-    // Clear errors when user starts typing
-    if (errors.length > 0) {
-      setErrors([]);
-    }
+    setErrors([]);
   };
 
   const handleSubmit = async (e) => {
@@ -32,19 +38,19 @@ export default function SignIn() {
     setLoading(true);
 
     try {
-      await signinUser({
-        email: formData.email,
-        password: formData.password,
-      });
+      const data = await signinUser(formData);
 
-      // Store remember me preference if checked
+      // Save login token + user
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+
+      // Remember email if checked
       if (rememberMe) {
         localStorage.setItem("rememberEmail", formData.email);
       } else {
         localStorage.removeItem("rememberEmail");
       }
 
-      // Redirect to home page on successful signin
       navigate("/home");
     } catch (error) {
       setErrors([error.message]);
@@ -65,7 +71,6 @@ export default function SignIn() {
             Let's get started by filling out the information below
           </p>
 
-          {/* Error Messages */}
           {errors.length > 0 && (
             <div className="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-md">
               {errors.map((error, idx) => (
@@ -76,7 +81,6 @@ export default function SignIn() {
             </div>
           )}
 
-          {/* Form */}
           <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
             <div>
               <label className="block mb-1 text-sm">Email</label>
@@ -86,7 +90,7 @@ export default function SignIn() {
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="Enter your Email"
-                className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 bg-transparent rounded-md focus:outline-none text-sm sm:text-base"
+                className="w-full px-4 py-3 border border-gray-200 rounded-md bg-transparent"
                 required
               />
             </div>
@@ -99,12 +103,12 @@ export default function SignIn() {
                 value={formData.password}
                 onChange={handleChange}
                 placeholder="Enter your password"
-                className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 bg-transparent rounded-md focus:outline-none text-sm sm:text-base"
+                className="w-full px-4 py-3 border border-gray-200 rounded-md bg-transparent"
                 required
               />
             </div>
 
-            <div className="flex items-center justify-between space-x-2 mt-2">
+            <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <input
                   type="checkbox"
@@ -122,7 +126,7 @@ export default function SignIn() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full cursor-pointer py-3 sm:py-4 mt-2 text-white bg-green-600 rounded-full text-base sm:text-lg font-medium hover:bg-green-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className="w-full py-3 mt-2 text-white bg-green-600 rounded-full hover:bg-green-700 transition disabled:opacity-50"
             >
               {loading ? "Signing in..." : "Sign In"}
             </button>
@@ -135,25 +139,23 @@ export default function SignIn() {
 
             <button
               type="button"
-              className="w-full cursor-pointer flex justify-center items-center gap-3 py-2 sm:py-3 border border-gray-600 rounded-full text-sm sm:text-lg hover:bg-gray-800 transition"
+              className="w-full flex justify-center items-center gap-3 py-3 border border-gray-600 rounded-full hover:bg-gray-800 transition"
             >
-              <img src={goog} alt="Google" className="w-5 sm:w-6 h-5 sm:h-6" />
+              <img src={goog} alt="Google" className="w-6 h-6" />
               Continue with Google
             </button>
 
             <p className="text-center mt-6 text-gray-300">
               New User?{" "}
-              <Link
-                to="/signup"
-                className="text-green-500 cursor-pointer hover:underline"
-              >
+              <Link to="/signup" className="text-green-500 hover:underline">
                 Sign up
               </Link>
             </p>
           </form>
         </div>
       </div>
-      <div className="hidden lg:flex w-full lg:w-1/2 h-screen">
+
+      <div className="hidden lg:flex w-1/2 h-screen">
         <img src={sig} alt="" className="w-full h-full object-cover" />
       </div>
     </div>

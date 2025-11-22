@@ -13,46 +13,42 @@ export default function Signup() {
     password: "",
     confirmPassword: "",
   });
+
   const [errors, setErrors] = useState([]);
   const [loading, setLoading] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [e.target.name]: e.target.value,
     }));
-    // Clear errors when user starts typing
-    if (errors.length > 0) {
-      setErrors([]);
-    }
+    setErrors([]);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrors([]);
 
-    // Validation
     if (!termsAccepted) {
-      setErrors([
+      return setErrors([
         "You must agree to the Terms of Service and Privacy Policies",
       ]);
-      return;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      return setErrors(["Passwords do not match"]);
     }
 
     setLoading(true);
 
     try {
-      await signupUser({
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        password: formData.password,
-        confirmPassword: formData.confirmPassword,
-      });
+      const data = await signupUser(formData);
 
-      // Redirect to home page on successful signup
+      // Save token + user
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+
       navigate("/home");
     } catch (error) {
       setErrors([error.message]);
@@ -74,7 +70,6 @@ export default function Signup() {
             Let's get started by filling out the information below
           </p>
 
-          {/* Error Messages */}
           {errors.length > 0 && (
             <div className="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-md">
               {errors.map((error, idx) => (
@@ -85,9 +80,8 @@ export default function Signup() {
             </div>
           )}
 
-          {/* Form */}
           <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block mb-1 text-sm">First Name</label>
                 <input
@@ -95,21 +89,21 @@ export default function Signup() {
                   name="firstName"
                   value={formData.firstName}
                   onChange={handleChange}
-                  placeholder="Enter Name"
-                  className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 bg-transparent rounded-md focus:outline-none text-sm sm:text-base"
+                  placeholder="Enter First Name"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-md bg-transparent"
                   required
                 />
               </div>
 
               <div>
-                <label className="block mb-1 text-sm">Last name</label>
+                <label className="block mb-1 text-sm">Last Name</label>
                 <input
                   type="text"
                   name="lastName"
                   value={formData.lastName}
                   onChange={handleChange}
-                  placeholder="Enter Name"
-                  className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 bg-transparent rounded-md focus:outline-none text-sm sm:text-base"
+                  placeholder="Enter Last Name"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-md bg-transparent"
                   required
                 />
               </div>
@@ -123,7 +117,7 @@ export default function Signup() {
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="Enter your Email"
-                className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 bg-transparent rounded-md focus:outline-none text-sm sm:text-base"
+                className="w-full px-4 py-3 border border-gray-200 rounded-md bg-transparent"
                 required
               />
             </div>
@@ -136,7 +130,7 @@ export default function Signup() {
                 value={formData.password}
                 onChange={handleChange}
                 placeholder="Enter your password"
-                className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 bg-transparent rounded-md focus:outline-none text-sm sm:text-base"
+                className="w-full px-4 py-3 border border-gray-200 rounded-md bg-transparent"
                 required
               />
             </div>
@@ -149,7 +143,7 @@ export default function Signup() {
                 value={formData.confirmPassword}
                 onChange={handleChange}
                 placeholder="Confirm your password"
-                className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 bg-transparent rounded-md focus:outline-none text-sm sm:text-base"
+                className="w-full px-4 py-3 border border-gray-200 rounded-md bg-transparent"
                 required
               />
             </div>
@@ -176,7 +170,7 @@ export default function Signup() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full cursor-pointer py-3 sm:py-4 mt-2 text-white bg-green-600 rounded-full text-base sm:text-lg font-medium hover:bg-green-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className="w-full py-3 mt-2 text-white bg-green-600 rounded-full hover:bg-green-700 transition disabled:opacity-50"
             >
               {loading ? "Signing up..." : "Sign up"}
             </button>
@@ -189,25 +183,23 @@ export default function Signup() {
 
             <button
               type="button"
-              className="w-full cursor-pointer flex justify-center items-center gap-3 py-2 sm:py-3 border border-gray-600 rounded-full text-sm sm:text-lg hover:bg-gray-800 transition"
+              className="w-full flex justify-center items-center gap-3 py-3 border border-gray-600 rounded-full hover:bg-gray-800 transition"
             >
-              <img src={goog} alt="Google" className="w-5 sm:w-6 h-5 sm:h-6" />
+              <img src={goog} alt="Google" className="w-6 h-6" />
               Continue with Google
             </button>
 
             <p className="text-center mt-6 text-gray-300">
               Already have an account?{" "}
-              <Link
-                to="/signin"
-                className="text-green-500 hover:underline cursor-pointer"
-              >
+              <Link to="/signin" className="text-green-500 hover:underline">
                 Sign in
               </Link>
             </p>
           </form>
         </div>
       </div>
-      <div className="hidden lg:flex w-full lg:w-1/2 h-screen">
+
+      <div className="hidden lg:flex w-1/2 h-screen">
         <img src={sig} alt="" className="w-full h-full object-cover" />
       </div>
     </div>
