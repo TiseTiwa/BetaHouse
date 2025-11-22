@@ -6,7 +6,6 @@ import { signupUser } from "../services/authService";
 
 export default function Signup() {
   const navigate = useNavigate();
-
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -14,13 +13,12 @@ export default function Signup() {
     password: "",
     confirmPassword: "",
   });
-
   const [errors, setErrors] = useState([]);
   const [loading, setLoading] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
     if (errors.length > 0) setErrors([]);
   };
 
@@ -33,14 +31,16 @@ export default function Signup() {
       return;
     }
 
-    setLoading(true);
+    if (formData.password !== formData.confirmPassword) {
+      setErrors(["Passwords do not match"]);
+      return;
+    }
 
+    setLoading(true);
     try {
       const data = await signupUser(formData);
-
-      // Save token (optional but useful)
       localStorage.setItem("authToken", data.token);
-
+      localStorage.setItem("user", JSON.stringify(data.user));
       navigate("/home");
     } catch (error) {
       setErrors([error.message]);
@@ -51,13 +51,9 @@ export default function Signup() {
 
   return (
     <div className="flex flex-col lg:flex-row">
-
       <div className="min-h-screen bg-white text-black p-6 sm:p-10 lg:p-20 flex justify-center w-full lg:w-1/2">
         <div className="w-full max-w-lg">
-          <h1 className="text-3xl font-bold">
-            Join our community of home seekers
-          </h1>
-
+          <h1 className="text-3xl font-bold">Join our community of home seekers</h1>
           <p className="mt-2">Fill the details below to get started</p>
 
           {errors.length > 0 && (
@@ -73,19 +69,18 @@ export default function Signup() {
               <input
                 type="text"
                 name="firstName"
-                placeholder="First Name"
                 value={formData.firstName}
                 onChange={handleChange}
+                placeholder="First Name"
                 className="w-full px-4 py-3 border border-gray-300 rounded-md"
                 required
               />
-
               <input
                 type="text"
                 name="lastName"
-                placeholder="Last Name"
                 value={formData.lastName}
                 onChange={handleChange}
+                placeholder="Last Name"
                 className="w-full px-4 py-3 border border-gray-300 rounded-md"
                 required
               />
@@ -94,9 +89,9 @@ export default function Signup() {
             <input
               type="email"
               name="email"
-              placeholder="Email Address"
               value={formData.email}
               onChange={handleChange}
+              placeholder="Email Address"
               className="w-full px-4 py-3 border border-gray-300 rounded-md"
               required
             />
@@ -104,9 +99,9 @@ export default function Signup() {
             <input
               type="password"
               name="password"
-              placeholder="Password"
               value={formData.password}
               onChange={handleChange}
+              placeholder="Password"
               className="w-full px-4 py-3 border border-gray-300 rounded-md"
               required
             />
@@ -114,9 +109,9 @@ export default function Signup() {
             <input
               type="password"
               name="confirmPassword"
-              placeholder="Confirm Password"
               value={formData.confirmPassword}
               onChange={handleChange}
+              placeholder="Confirm Password"
               className="w-full px-4 py-3 border border-gray-300 rounded-md"
               required
             />
@@ -130,13 +125,8 @@ export default function Signup() {
               />
               <p className="text-sm">
                 I agree to the{" "}
-                <a href="#" className="text-green-600 hover:underline">
-                  Terms of Service
-                </a>{" "}
-                &{" "}
-                <a href="#" className="text-green-600 hover:underline">
-                  Privacy Policy
-                </a>
+                <a href="#" className="text-green-600 hover:underline">Terms of Service</a> &{" "}
+                <a href="#" className="text-green-600 hover:underline">Privacy Policy</a>
               </p>
             </div>
 
@@ -158,15 +148,12 @@ export default function Signup() {
               type="button"
               className="w-full flex justify-center items-center gap-3 py-3 border border-gray-600 rounded-full hover:bg-gray-100"
             >
-              <img src={goog} className="w-5 h-5" />
-              Continue with Google
+              <img src={goog} className="w-5 h-5" /> Continue with Google
             </button>
 
             <p className="text-center mt-6">
               Already have an account?{" "}
-              <Link to="/signin" className="text-green-600 hover:underline">
-                Sign in
-              </Link>
+              <Link to="/signin" className="text-green-600 hover:underline">Sign in</Link>
             </p>
           </form>
         </div>
@@ -175,7 +162,6 @@ export default function Signup() {
       <div className="hidden lg:flex w-1/2 h-screen">
         <img src={sig} className="w-full h-full object-cover" />
       </div>
-
     </div>
   );
 }

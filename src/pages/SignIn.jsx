@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import goog from "../../public/🦆 icon _google_.png";
 import sig from "../../public/Frame 1000002379.png";
@@ -6,35 +6,38 @@ import { signinUser } from "../services/authService";
 
 export default function SignIn() {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    email: localStorage.getItem("rememberEmail") || "",
-    password: "",
-  });
-
+  const [formData, setFormData] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [rememberMe, setRememberMe] = useState(
-    Boolean(localStorage.getItem("rememberEmail"))
-  );
+  const [rememberMe, setRememberMe] = useState(false);
+
+  // Load saved email if "remember me" was used
+  useEffect(() => {
+    const savedEmail = localStorage.getItem("rememberEmail");
+    if (savedEmail) {
+      setFormData({ email: savedEmail, password: "" });
+      setRememberMe(true);
+    }
+  }, []);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-
-    // remove errors once user starts typing
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
     if (errors.length > 0) setErrors([]);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setErrors([]);
+    setLoading(true);
 
     try {
       const data = await signinUser(formData);
 
-      // store token for authenticated routes
+      // Save token + user
       localStorage.setItem("authToken", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
 
+      // Remember email if checked
       if (rememberMe) {
         localStorage.setItem("rememberEmail", formData.email);
       } else {
@@ -54,7 +57,6 @@ export default function SignIn() {
       <div className="min-h-screen bg-white text-black p-6 sm:p-10 lg:p-20 flex justify-center w-full lg:w-1/2">
         <div className="w-full max-w-lg">
           <h1 className="text-3xl font-bold">Welcome Back to BetaHouse!</h1>
-
           <p className="mt-2">Let's get started by signing in</p>
 
           {errors.length > 0 && (
@@ -67,7 +69,6 @@ export default function SignIn() {
 
           <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
             <div>
-              <label className="block mb-1 text-sm">Email</label>
               <input
                 type="email"
                 name="email"
@@ -80,7 +81,6 @@ export default function SignIn() {
             </div>
 
             <div>
-              <label className="block mb-1 text-sm">Password</label>
               <input
                 type="password"
                 name="password"
@@ -102,7 +102,6 @@ export default function SignIn() {
                 />
                 <p className="text-sm">Remember Me</p>
               </div>
-
               <a href="#" className="text-red-500 text-sm hover:underline">
                 Forgot Password?
               </a>
@@ -126,8 +125,7 @@ export default function SignIn() {
               type="button"
               className="w-full flex justify-center items-center gap-3 py-3 border border-gray-600 rounded-full hover:bg-gray-100"
             >
-              <img src={goog} className="w-5 h-5" />
-              Continue with Google
+              <img src={goog} className="w-5 h-5" /> Continue with Google
             </button>
 
             <p className="text-center mt-6">
