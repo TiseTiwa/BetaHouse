@@ -2,7 +2,7 @@ const BASE_URL = "https://betahouse-backend-pr81.onrender.com/api/auth";
 
 // ---- SIGN UP ----
 export const signupUser = async (formData) => {
-  const response = await fetch(`${BASE_URL}/signup`, {
+  const response = await fetch(`${BASE_URL}/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(formData),
