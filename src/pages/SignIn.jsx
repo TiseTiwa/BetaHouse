@@ -35,7 +35,7 @@ export default function SignIn() {
 
       // Save token + user
       localStorage.setItem("authToken", data.token);
-      localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem("authuser", JSON.stringify(data.user));
 
       // Remember email if checked
       if (rememberMe) {

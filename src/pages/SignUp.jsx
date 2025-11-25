@@ -40,7 +40,7 @@ export default function Signup() {
     try {
       const data = await signupUser(formData);
       localStorage.setItem("authToken", data.token);
-      localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem("authuser", JSON.stringify(data.user));
       navigate("/home");
     } catch (error) {
       setErrors([error.message]);
@@ -53,7 +53,9 @@ export default function Signup() {
     <div className="flex flex-col lg:flex-row">
       <div className="min-h-screen bg-white text-black p-6 sm:p-10 lg:p-20 flex justify-center w-full lg:w-1/2">
         <div className="w-full max-w-lg">
-          <h1 className="text-3xl font-bold">Join our community of home seekers</h1>
+          <h1 className="text-3xl font-bold">
+            Join our community of home seekers
+          </h1>
           <p className="mt-2">Fill the details below to get started</p>
 
           {errors.length > 0 && (
@@ -125,8 +127,13 @@ export default function Signup() {
               />
               <p className="text-sm">
                 I agree to the{" "}
-                <a href="#" className="text-green-600 hover:underline">Terms of Service</a> &{" "}
-                <a href="#" className="text-green-600 hover:underline">Privacy Policy</a>
+                <a href="#" className="text-green-600 hover:underline">
+                  Terms of Service
+                </a>{" "}
+                &{" "}
+                <a href="#" className="text-green-600 hover:underline">
+                  Privacy Policy
+                </a>
               </p>
             </div>
 
@@ -153,7 +160,9 @@ export default function Signup() {
 
             <p className="text-center mt-6">
               Already have an account?{" "}
-              <Link to="/signin" className="text-green-600 hover:underline">Sign in</Link>
+              <Link to="/signin" className="text-green-600 hover:underline">
+                Sign in
+              </Link>
             </p>
           </form>
         </div>
