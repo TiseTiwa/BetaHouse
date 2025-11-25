@@ -14,6 +14,8 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.use("/uploads", express.static("uploads"));
+
 // MongoDB Connection
 mongoose
   .connect(process.env.MONGODB_URI || "mongodb://localhost:27017/betahouse")

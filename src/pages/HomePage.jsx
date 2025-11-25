@@ -3,15 +3,15 @@ import NavBar from "../components/NavBar";
 import Footer from "../components/Footer";
 import { PropertyGrid } from "../components/PropertyGrid";
 
-import oneL from "../../public/Link.png";
-import twoL from "../../public/Link (1).png";
-import threeL from "../../public/Link (2).png";
-import fourL from "../../public/Link (3).png";
+import oneL from "../assets/uploads/Link.png";
+import twoL from "../assets/uploads/Link1.png";
+import threeL from "../assets/uploads/Link2.png";
+import fourL from "../assets/uploads/Link3.png";
 
 import { FaLocationDot } from "react-icons/fa6";
 
-import arrle from "../../public/frame c.png";
-import arrri from "../../public/frame c (1).png";
+import arrle from "../assets/uploads/framec.png";
+import arrri from "../assets/uploads/framecc.png";
 
 const HomePage = () => {
   //  ============ FILTER STATES ============
