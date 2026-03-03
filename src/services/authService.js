@@ -1,8 +1,9 @@
-const BASE_URL = "https://betahouse-backend-pr81.onrender.com/api/auth";
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const BASE_URL = `${API_BASE}/auth`;
 
 // ---- SIGN UP ----
 export const signupUser = async (formData) => {
-  const response = await fetch(`${BASE_URL}/register`, {
+  const response = await fetch(`${BASE_URL}/signup`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(formData),
@@ -11,7 +12,8 @@ export const signupUser = async (formData) => {
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.message || "Signup failed");
+    const errorMsg = data.error || data.errors?.map(e => e.msg).join(", ") || "Signup failed";
+    throw new Error(errorMsg);
   }
 
   return data; // { user, token }
@@ -28,7 +30,8 @@ export const signinUser = async (credentials) => {
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.message || "Login failed");
+    const errorMsg = data.error || data.errors?.map(e => e.msg).join(", ") || "Login failed";
+    throw new Error(errorMsg);
   }
 
   return data; // { user, token }
